@@ -44,13 +44,13 @@
 
     <br><br>
 
-    <button @click="handleStart">Démarrer le match</button>
+    <button @click="handleStart" :disabled="!startingTeam">Démarrer le match</button>
   </div>
   
   <!-- Overlay -->
   <div v-if="overlayVisible" class="overlay">
     <div class="overlay-content">
-      Résultat : {{ startingTeam }}
+    Prochaine équipe à jouer : {{ startingTeam }}
     </div>
   </div>
 </template>
@@ -77,6 +77,11 @@ function randomizeTeam() {
 }
 
 function handleStart() {
+  // Vérifier que l'équipe de départ est sélectionnée
+  if (!startingTeam.value || startingTeam.value === '') {
+    alert("Veuillez sélectionner une équipe de départ.")
+    return
+  }
   if (startingTeam.value === 'Aléatoire') {
     startingTeam.value = Math.random() < 0.5 ? 'Équipe 1' : 'Équipe 2'
     overlayVisible.value = true
