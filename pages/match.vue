@@ -6,9 +6,14 @@
         <div v-if="!matchOver && currentHoleIndex < 9">
             <h2>Trou {{ currentHole }}</h2>
             <p>
-                <strong>Prochaine équipe à jouer :</strong> {{ currentStartingTeam }}<br>
+                <strong>Prochaine équipe à jouer : </strong>
+                <span v-if="currentStartingTeam === 'team1' ">{{ team1Name }}</span>
+                <span v-else-if="currentStartingTeam === 'team2' ">{{ team2Name }}</span>
+                <span v-else>{{ currentStartingTeam }}</span>
+                <br>
             </p>
             <!-- Afficher les infos pour l'équipe en retard si les scores diffèrent -->
+            <h3>Qui a gagné le trou</h3>
             <div class="actions">
                 <button @click="recordResult('Team A')">équipe 1</button>
                 <button @click="recordResult('Team B')">équipe 2</button>

@@ -1,5 +1,5 @@
 <template>
-  <div class="config">
+  <div class="config container-fluid">
     <h1>Configuration du match</h1>
     
     <!-- Sélectionnez le trou de départ via des boutons -->
@@ -19,13 +19,13 @@
     <div>
       <h2>Sélectionnez l'équipe de départ</h2>
       <label>
-        <input type="radio" value="Équipe 1" v-model="startingTeam" /> Équipe 1
+        <input type="radio" value="team1" v-model="startingTeam" /> Équipe 1
       </label>
       <label>
-        <input type="radio" value="Équipe 2" v-model="startingTeam" /> Équipe 2
+        <input type="radio" value="team2" v-model="startingTeam" /> Équipe 2
       </label>
       <label>
-        <input type="radio" value="Aléatoire" v-model="startingTeam" /> Aléatoire
+        <input type="radio" value="random" v-model="startingTeam" /> Aléatoire
       </label>
     </div>
 
@@ -44,7 +44,9 @@
 
     <br><br>
 
-    <button @click="handleStart" :disabled="!startingTeam">Démarrer le match</button>
+    <button @click="handleStart" :disabled="!startingTeam">
+      {{ startingTeam === 'random' ? 'Sélectionner une équipe puis démarrer le match' : 'Démarrer le match' }}
+    </button>
   </div>
   
   <!-- Overlay -->
@@ -61,7 +63,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const startHole = ref(1)
-const startingTeam = ref('Team A')
+const startingTeam = ref()
 const overlayVisible = ref(false)
 // Nouvelles variables pour les noms d’équipes personnalisées
 const team1 = ref('Équipe 1')
@@ -82,8 +84,8 @@ function handleStart() {
     alert("Veuillez sélectionner une équipe de départ.")
     return
   }
-  if (startingTeam.value === 'Aléatoire') {
-    startingTeam.value = Math.random() < 0.5 ? 'Équipe 1' : 'Équipe 2'
+  if (startingTeam.value === 'random') {
+    startingTeam.value = Math.random() < 0.5 ? 'team1' : 'team2'
     overlayVisible.value = true
     setTimeout(() => {
       overlayVisible.value = false
