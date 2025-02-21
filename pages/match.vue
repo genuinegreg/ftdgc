@@ -32,9 +32,9 @@
             <p v-if="matchOver">
                 Vainqueur : {{ winnerDisplay }}
             </p>
-            <p v-else>
-            <h4> Égalité </h4>
-            </p>
+            <h4 v-else>
+                Égalité
+            </h4>
         </div>
 
         <!-- Tableau de progression -->
