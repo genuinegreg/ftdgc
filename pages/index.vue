@@ -38,6 +38,40 @@
       <button @click="team2 = 'Nous'; team1 = 'Eux'">C'est moi</button>
     </div>
 
+    <!-- Nouveau sélecteur pour le type de match -->
+    <div class="match-type">
+      <h2>Type de match</h2>
+      <label>
+        <input type="radio" v-model="matchType" value="simple" checked /> Simple
+      </label>
+      <label>
+        <input type="radio" v-model="matchType" value="double" /> Double
+      </label>
+    </div>
+
+    <br><br>
+
+    <!-- Section de sélection des joueurs pour le double -->
+    <div v-if="matchType === 'double'" class="starting-players">
+      <h2>Joueurs au départ du trou {{ startHole }}</h2>
+      <div class="team-players">
+        <div>
+          <h3>{{ team1 }}</h3>
+          <select v-model="team1StartingPlayer">
+            <option value="1">Joueur 1</option>
+            <option value="2">Joueur 2</option>
+          </select>
+        </div>
+        <div>
+          <h3>{{ team2 }}</h3>
+          <select v-model="team2StartingPlayer">
+            <option value="1">Joueur 1</option>
+            <option value="2">Joueur 2</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <br><br>
 
     <button @click="handleStart" :disabled="!startingTeam">
@@ -74,7 +108,9 @@ const overlayVisible = ref(false)
 // Nouvelles variables pour les noms d’équipes personnalisées
 const team1 = ref('Équipe 1')
 const team2 = ref('Équipe 2')
-
+const matchType = ref('simple')
+const team1StartingPlayer = ref('1')
+const team2StartingPlayer = ref('1')
 
 function handleStart() {
   // Vérifier que l'équipe de départ est sélectionnée
@@ -103,6 +139,12 @@ function startMatch() {
       startingTeam: startingTeam.value,
       team1: team1.value,
       team2: team2.value,
+      matchType: matchType.value, // Ajout du type de match
+      // Ajouter les joueurs de départ seulement en double
+      ...(matchType.value === 'double' && {
+        team1StartingPlayer: team1StartingPlayer.value,
+        team2StartingPlayer: team2StartingPlayer.value,
+      }),
     },
   })
 }
@@ -158,5 +200,36 @@ function startMatch() {
   background: white;
   padding: 20px;
   border-radius: 5px;
+}
+
+.match-type {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.match-type label {
+  margin: 0 1rem;
+}
+
+.starting-players {
+  margin-top: 2rem;
+}
+
+.team-players {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1rem;
+}
+
+.team-players h3 {
+  margin-bottom: 0.5rem;
+}
+
+.team-players select {
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  width: 120px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 </style>

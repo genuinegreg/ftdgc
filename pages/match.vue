@@ -5,12 +5,23 @@
         <!-- Affichage du match en cours -->
         <div v-if="!matchOver && currentHoleIndex < 9">
             <h2>Trou {{ currentHole }}</h2>
-            <p>
+
+            <div v-if="matchType === 'double'" class="current-players">
+                <p><strong>Ordre de départ sur le tee :</strong></p>
+                <p>
+                    1. {{ currentStartingTeam === 'team1' ? team1Name : team2Name }}
+                    (J{{ currentStartingTeam === 'team1' ? currentPlayers.team1 : currentPlayers.team2 }})
+                </p>
+                <p>
+                    2. {{ currentStartingTeam === 'team1' ? team2Name : team1Name }}
+                    (J{{ currentStartingTeam === 'team1' ? currentPlayers.team2 : currentPlayers.team1 }})
+                </p>
+            </div>
+
+            <p v-else>
                 <strong>Prochain sur le tee : </strong>
                 <span v-if="currentStartingTeam === 'team1'">{{ team1Name }}</span>
                 <span v-else-if="currentStartingTeam === 'team2'">{{ team2Name }}</span>
-                <span v-else>{{ currentStartingTeam }}</span>
-                <br>
             </p>
             <!-- Afficher les infos pour l'équipe en retard si les scores diffèrent -->
             <h3>Qui a gagné le trou</h3>
@@ -133,6 +144,21 @@ const trailingInfo = computed(() => {
     // il faut que 2*(R - L) >= d + 2*L  => L <= (2R - d) / 4
     const lossesAllowed = Math.floor((2 * R - d) / 4)
     return { team: teamGeneric, lossesAllowed, drawsAllowed }
+})
+
+const matchType = ref(route.query.matchType || 'simple')
+const team1StartingPlayer = ref(route.query.team1StartingPlayer || '1')
+const team2StartingPlayer = ref(route.query.team2StartingPlayer || '1')
+
+// Nouvelle computed pour déterminer les joueurs actuels
+const currentPlayers = computed(() => {
+    if (matchType.value !== 'double') return null
+    
+    const isEvenHole = currentHole.value % 2 === 0
+    return {
+        team1: isEvenHole ? (team1StartingPlayer.value === '1' ? '2' : '1') : team1StartingPlayer.value,
+        team2: isEvenHole ? (team2StartingPlayer.value === '1' ? '2' : '1') : team2StartingPlayer.value
+    }
 })
 
 function saveState() {
@@ -264,5 +290,17 @@ td {
     padding: 0.5rem 1rem;
     font-size: 1rem;
     cursor: pointer;
+}
+
+.current-players {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+.current-players p {
+    margin: 0.5rem 0;
 }
 </style>
