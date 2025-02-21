@@ -6,17 +6,17 @@
         <div v-if="!matchOver && currentHoleIndex < 9">
             <h2>Trou {{ currentHole }}</h2>
             <p>
-                <strong>Prochaine équipe à jouer : </strong>
-                <span v-if="currentStartingTeam === 'team1' ">{{ team1Name }}</span>
-                <span v-else-if="currentStartingTeam === 'team2' ">{{ team2Name }}</span>
+                <strong>Prochain sur le tee : </strong>
+                <span v-if="currentStartingTeam === 'team1'">{{ team1Name }}</span>
+                <span v-else-if="currentStartingTeam === 'team2'">{{ team2Name }}</span>
                 <span v-else>{{ currentStartingTeam }}</span>
                 <br>
             </p>
             <!-- Afficher les infos pour l'équipe en retard si les scores diffèrent -->
             <h3>Qui a gagné le trou</h3>
             <div class="actions">
-                <button @click="recordResult('Team A')">équipe 1</button>
-                <button @click="recordResult('Team B')">équipe 2</button>
+                <button @click="recordResult('Team A')">Équipe 1</button>
+                <button @click="recordResult('Team B')">Équipe 2</button>
                 <button @click="recordResult('draw')">Nul</button>
             </div>
         </div>
@@ -31,6 +31,9 @@
             </p>
             <p v-if="matchOver">
                 Vainqueur : {{ winnerDisplay }}
+            </p>
+            <p v-else>
+            <h4> Égalité </h4>
             </p>
         </div>
 
@@ -47,14 +50,24 @@
                 <tbody>
                     <tr>
                         <td>{{ team1Name }}</td>
-                        <td v-for="(hole, index) in holes" :key="'teamA-' + hole" :class="{'skipped': matchOver && index+1 > currentHoleIndex}">
-                            {{ matchOver && index+1 > currentHoleIndex ? '❌' : (progression[index] ? progression[index].teamAScore : '') }}
+                        <td v-for="(hole, index) in holes" :key="'teamA-' + hole" :class="{
+                            'skipped': matchOver && index + 1 > currentHoleIndex,
+                            'winner': getHoleResult(index) === 'team1',
+                            'draw': getHoleResult(index) === 'draw'
+                        }">
+                            {{ matchOver && index + 1 > currentHoleIndex ? '❌' : (progression[index] ?
+                                progression[index].teamAScore : '') }}
                         </td>
                     </tr>
                     <tr>
                         <td>{{ team2Name }}</td>
-                        <td v-for="(hole, index) in holes" :key="'teamB-' + hole" :class="{'skipped': matchOver && index+1 > currentHoleIndex}">
-                            {{ matchOver && index+1 > currentHoleIndex ? '❌' : (progression[index] ? progression[index].teamBScore : '') }}
+                        <td v-for="(hole, index) in holes" :key="'teamB-' + hole" :class="{
+                            'skipped': matchOver && index + 1 > currentHoleIndex,
+                            'winner': getHoleResult(index) === 'team2',
+                            'draw': getHoleResult(index) === 'draw'
+                        }">
+                            {{ matchOver && index + 1 > currentHoleIndex ? '❌' : (progression[index] ?
+                                progression[index].teamBScore : '') }}
                         </td>
                     </tr>
                 </tbody>
@@ -96,56 +109,70 @@ const currentHole = computed(() => holes[currentHoleIndex.value])
 
 const remainingHoles = computed(() => 9 - currentHoleIndex.value)
 const winnerDisplay = computed(() => {
-  if (teamAScore.value === teamBScore.value) return 'Nul'
-  // Déterminer l'équipe gagnante et utiliser le nom passé via la route
-  const winningTeamGeneric = teamAScore.value > teamBScore.value ? 'Team A' : 'Team B'
-  const winningTeam = winningTeamGeneric === 'Team A' ? team1Name.value : team2Name.value
-  const winningScore = winningTeamGeneric === 'Team A' ? teamAScore.value : teamBScore.value
-  return `« ${winningTeam} » avec ${winningScore}&${remainingHoles.value}`
+    if (teamAScore.value === teamBScore.value) return 'Nul'
+    // Déterminer l'équipe gagnante et utiliser le nom passé via la route
+    const winningTeamGeneric = teamAScore.value > teamBScore.value ? 'Team A' : 'Team B'
+    const winningTeam = winningTeamGeneric === 'Team A' ? team1Name.value : team2Name.value
+    const winningScore = winningTeamGeneric === 'Team A' ? teamAScore.value : teamBScore.value
+    return `« ${winningTeam} » avec ${winningScore}&${remainingHoles.value}`
 })
 
 // Nouvelle computed pour suivre l'équipe en retard et ses marges
 const trailingInfo = computed(() => {
-  if (teamAScore.value === teamBScore.value) return null
-  // L'équipe en retard a le score le plus bas
-  const teamGeneric = teamAScore.value < teamBScore.value ? 'Team A' : 'Team B'
-  const d = Math.abs(teamAScore.value - teamBScore.value)
-  const R = remainingHoles.value
-  // Pour revenir, l'équipe en retard doit gagner suffisamment de trous
-  // Chaque victoire réduit l'écart de 2 points.
-  const winsNeeded = Math.ceil(d / 2)
-  const drawsAllowed = Math.max(0, R - winsNeeded)
-  // Si l'équipe perd un trou, l'écart augmente de 2.
-  // Pour maximiser le comeback, si elle perd L trous et gagne le reste (R - L),
-  // il faut que 2*(R - L) >= d + 2*L  => L <= (2R - d) / 4
-  const lossesAllowed = Math.floor((2 * R - d) / 4)
-  return { team: teamGeneric, lossesAllowed, drawsAllowed }
+    if (teamAScore.value === teamBScore.value) return null
+    // L'équipe en retard a le score le plus bas
+    const teamGeneric = teamAScore.value < teamBScore.value ? 'Team A' : 'Team B'
+    const d = Math.abs(teamAScore.value - teamBScore.value)
+    const R = remainingHoles.value
+    // Pour revenir, l'équipe en retard doit gagner suffisamment de trous
+    // Chaque victoire réduit l'écart de 2 points.
+    const winsNeeded = Math.ceil(d / 2)
+    const drawsAllowed = Math.max(0, R - winsNeeded)
+    // Si l'équipe perd un trou, l'écart augmente de 2.
+    // Pour maximiser le comeback, si elle perd L trous et gagne le reste (R - L),
+    // il faut que 2*(R - L) >= d + 2*L  => L <= (2R - d) / 4
+    const lossesAllowed = Math.floor((2 * R - d) / 4)
+    return { team: teamGeneric, lossesAllowed, drawsAllowed }
 })
 
 function saveState() {
-  const state = {
-    currentHoleIndex: currentHoleIndex.value,
-    teamAScore: teamAScore.value,
-    teamBScore: teamBScore.value,
-    progression: progression.value,
-    matchOver: matchOver.value,
-    currentStartingTeam: currentStartingTeam.value
-  }
-  localStorage.setItem('matchState', JSON.stringify(state))
+    const state = {
+        currentHoleIndex: currentHoleIndex.value,
+        teamAScore: teamAScore.value,
+        teamBScore: teamBScore.value,
+        progression: progression.value,
+        matchOver: matchOver.value,
+        currentStartingTeam: currentStartingTeam.value
+    }
+    localStorage.setItem('matchState', JSON.stringify(state))
 }
 
 onMounted(() => {
-  const saved = localStorage.getItem('matchState')
-  if (saved) {
-    const state = JSON.parse(saved)
-    currentHoleIndex.value = state.currentHoleIndex || 0
-    teamAScore.value = state.teamAScore || 0
-    teamBScore.value = state.teamBScore || 0
-    progression.value = state.progression || []
-    matchOver.value = state.matchOver || false
-    currentStartingTeam.value = state.currentStartingTeam || initialStartingTeam
-  }
+    const saved = localStorage.getItem('matchState')
+    if (saved) {
+        const state = JSON.parse(saved)
+        currentHoleIndex.value = state.currentHoleIndex || 0
+        teamAScore.value = state.teamAScore || 0
+        teamBScore.value = state.teamBScore || 0
+        progression.value = state.progression || []
+        matchOver.value = state.matchOver || false
+        currentStartingTeam.value = state.currentStartingTeam || initialStartingTeam
+    }
 })
+
+// Ajouter cette fonction pour déterminer le résultat de chaque trou
+function getHoleResult(index) {
+    if (!progression.value[index]) return null
+
+    const currentScore = progression.value[index]
+    const previousScore = index > 0 ? progression.value[index - 1] : { teamAScore: 0, teamBScore: 0 }
+
+    const team1Diff = currentScore.teamAScore - previousScore.teamAScore
+    const team2Diff = currentScore.teamBScore - previousScore.teamBScore
+
+    if (team1Diff === team2Diff) return 'draw'
+    return team1Diff > team2Diff ? 'team1' : 'team2'
+}
 
 function recordResult(result) {
     // Mise à jour des scores et mise à jour de l'équipe de départ si une équipe gagne
@@ -165,10 +192,10 @@ function recordResult(result) {
         teamAScore: teamAScore.value,
         teamBScore: teamBScore.value,
     })
-    
+
     // Passage au trou suivant
     currentHoleIndex.value++
-    
+
     // Vérifier si un comeback est impossible
     const remaining = 9 - currentHoleIndex.value
     if (Math.abs(teamAScore.value - teamBScore.value) > (remaining * 2)) {
@@ -178,10 +205,10 @@ function recordResult(result) {
 }
 
 function goBackConfig() {
-  if (confirm("Voulez-vous vraiment retourner à la page de configuration ?")) {
-    localStorage.removeItem('matchState')
-    router.push('/')
-  }
+    if (confirm("Voulez-vous vraiment retourner à la page de configuration ?")) {
+        localStorage.removeItem('matchState')
+        router.push('/')
+    }
 }
 </script>
 
@@ -216,17 +243,26 @@ td {
 }
 
 .skipped {
-  background-color: red;
-  color: white;
-  font-weight: bold;
+    /* background-color: red; */
+    color: white;
+    font-weight: bold;
+}
+
+.winner {
+    background-color: hwb(112 88% 0%);
+}
+
+.draw {
+    background-color: hwb(60 88% 0%);
 }
 
 .return-config {
-  margin-top: 1rem;
+    margin-top: 1rem;
 }
+
 .return-config button {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  cursor: pointer;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
 }
 </style>
