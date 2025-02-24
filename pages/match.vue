@@ -6,9 +6,9 @@
         <div v-if="!matchOver && currentHoleIndex < 9">
             <h2>Trou {{ currentHole }}</h2>
             <p>
-                <strong>Prochaine équipe à jouer :</strong> 
+                <strong>Prochaine équipe sur le Tee :</strong> 
                 {{ currentTeamAndPlayer }}<br>
-                <span>Autre équipe : {{ otherTeamAndPlayer }}</span>
+                <span>équipe suivante : {{ otherTeamAndPlayer }}</span>
             </p>
             <!-- Afficher les infos pour l'équipe en retard si les scores diffèrent -->
             <div class="actions">
