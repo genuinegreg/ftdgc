@@ -5,22 +5,21 @@
     <!-- Affichage du match en cours -->
     <div v-if="!matchOver && currentHoleIndex < 9">
       <h2>Trou {{ currentHole }}</h2>
-      <p>
-        <strong>Prochaine équipe sur le Tee :</strong>
-
+      
+        <h2>Prochaine équipe sur le Tee :</h2>
 
 
       <ol>
         <li v-if="!currentHoleIsEven && matchType === 'double'">Le match simple</li>
-        <li v-if="currentHoleIsEven && matchType === 'simple'">Le match double (paire sur les pair)</li>
+        <li v-if="currentHoleIsEven && matchType === 'simple'">Le match double (paire sur les pairs)</li>
         <li><strong>{{ currentTeamAndPlayer }}</strong></li>
         <li><strong>{{ otherTeamAndPlayer }}</strong></li>
         <li v-if="currentHoleIsEven && matchType === 'double'">Le match simple</li>
-        <li v-if="!currentHoleIsEven && matchType === 'simple'">Le match double  (paire sur les pair)</li>
+        <li v-if="!currentHoleIsEven && matchType === 'simple'">Le match double  (paire sur les pairs)</li>
       </ol>
-      </p>
+      
       <!-- Afficher les infos pour l'équipe en retard si les scores diffèrent -->
-      <h3>Qui a gagner le trou ?</h3>
+      <h3>Qui a gagné le trou ?</h3>
       <div class="actions">
         <button @click="recordResult(StartingTeam.TeamA)">Équipe A</button>
         <button @click="recordResult(StartingTeam.TeamB)">Équipe B</button>
@@ -36,9 +35,9 @@
         <br>{{ team1Name }} : {{ teamAScore }}
         <br>{{ team2Name }} : {{ teamBScore }}
       </p>
-      <p v-if="matchOver">
+      <h2 class="Vainqueur" v-if="matchOver || currentHoleIndex === 9">
         Vainqueur : {{ winnerDisplay }}
-      </p>
+      </h2>
     </div>
 
     <!-- Tableau de progression -->
@@ -292,5 +291,12 @@ td {
 ol {
   text-align: center;
   list-style-position: inside;
+}
+
+
+.Vainqueur {
+  color: blue;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 </style>
