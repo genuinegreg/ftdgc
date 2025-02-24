@@ -15,27 +15,14 @@
     <div>
       <h2>Sélectionnez l'équipe de départ</h2>
       <label>
-        <input type="radio" :value="StartingTeam.Team1" v-model="startingTeam" /> {{ team1 }}
+        <input type="radio" :value="StartingTeam.TeamA" v-model="startingTeam" /> Équipe A
       </label>
       <label>
-        <input type="radio" :value="StartingTeam.Team2" v-model="startingTeam" /> {{ team2 }}
+        <input type="radio" :value="StartingTeam.TeamB" v-model="startingTeam" /> Équipe B
       </label>
       <label>
         <input type="radio" :value="StartingTeam.Random" v-model="startingTeam" /> Aléatoire
       </label>
-    </div>
-
-    <!-- Champs pour personnaliser les noms des équipes -->
-    <h2>Personnaliser les noms d'équipes</h2>
-    <div>
-      <label for="team1">Équipe 1 :</label>
-      <input type="text" v-model="team1" id="team1" placeholder="Équipe 1" />
-      <button @click="team1 = 'Nous'; team2 = 'Eux'">C'est moi</button>
-    </div>
-    <div>
-      <label for="team2">Équipe 2 :</label>
-      <input type="text" v-model="team2" id="team2" placeholder="Équipe 2" />
-      <button @click="team2 = 'Nous'; team1 = 'Eux'">C'est moi</button>
     </div>
 
     <!-- Nouveau sélecteur pour le type de match -->
@@ -56,14 +43,14 @@
       <h2>Joueurs au départ du trou {{ startHole }}</h2>
       <div class="team-players">
         <div>
-          <h3>{{ team1 }}</h3>
+          <h3>Équipe A</h3>
           <select v-model="team1StartingPlayer">
             <option value="1">Joueur 1</option>
             <option value="2">Joueur 2</option>
           </select>
         </div>
         <div>
-          <h3>{{ team2 }}</h3>
+          <h3>Équipe B</h3>
           <select v-model="team2StartingPlayer">
             <option value="1">Joueur 1</option>
             <option value="2">Joueur 2</option>
@@ -75,17 +62,14 @@
     <br><br>
 
     <button @click="handleStart" :disabled="!startingTeam">
-      {{ startingTeam === 'random' ? 'Sélectionner une équipe puis démarrer le match' : 'Démarrer le match' }}
+      {{ startingTeam === StartingTeam.Random ? 'Sélectionner une équipe puis démarrer le match' : 'Démarrer le match' }}
     </button>
   </div>
 
   <!-- Overlay -->
   <div v-if="overlayVisible" class="overlay">
     <div class="overlay-content">
-      Prochaine équipe à jouer :
-      <span v-if="startingTeam === StartingTeam.Team1">{{ team1 }}</span>
-      <span v-else>{{ team2 }}</span>
-
+      Résultat : {{ startingTeam === StartingTeam.TeamA ? 'Équipe A' : 'Équipe B' }}
     </div>
   </div>
 </template>
@@ -96,30 +80,26 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 enum StartingTeam {
-  Team1 = 'team1',
-  Team2 = 'team2',
-  Random = 'random',
+  TeamA = 'teamA',
+  TeamB = 'teamB',
+  Random = 'random'
 }
 
 const router = useRouter()
 const startHole = ref(1)
-const startingTeam = ref < StartingTeam > ()
+const startingTeam = ref<StartingTeam>(StartingTeam.Random)
 const overlayVisible = ref(false)
-// Nouvelles variables pour les noms d’équipes personnalisées
-const team1 = ref('Équipe 1')
-const team2 = ref('Équipe 2')
 const matchType = ref('simple')
 const team1StartingPlayer = ref('1')
 const team2StartingPlayer = ref('1')
 
 function handleStart() {
-  // Vérifier que l'équipe de départ est sélectionnée
   if (!startingTeam.value) {
     alert("Veuillez sélectionner une équipe de départ.")
     return
   }
   if (startingTeam.value === StartingTeam.Random) {
-    startingTeam.value = Math.random() < 0.5 ? StartingTeam.Team1 : StartingTeam.Team2
+    startingTeam.value = Math.random() < 0.5 ? StartingTeam.TeamA : StartingTeam.TeamB
     overlayVisible.value = true
     setTimeout(() => {
       overlayVisible.value = false
@@ -131,14 +111,11 @@ function handleStart() {
 }
 
 function startMatch() {
-  // Pass configuration as query parameters so the match page can pick them up
   router.push({
     path: '/match',
     query: {
       startHole: startHole.value,
       startingTeam: startingTeam.value,
-      team1: team1.value,
-      team2: team2.value,
       matchType: matchType.value, // Ajout du type de match
       // Ajouter les joueurs de départ seulement en double
       ...(matchType.value === 'double' && {
