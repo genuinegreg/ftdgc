@@ -1,76 +1,86 @@
 <template>
-    <div class="match">
-        <h1>Match de Disc Golf</h1>
+  <div class="match">
+    <h1>Match de Disc Golf</h1>
 
-        <!-- Affichage du match en cours -->
-        <div v-if="!matchOver && currentHoleIndex < 9">
-            <h2>Trou {{ currentHole }}</h2>
-            <p>
-                <strong>Prochaine équipe sur le Tee :</strong> 
-                {{ currentTeamAndPlayer }}<br>
-                <span>équipe suivante : {{ otherTeamAndPlayer }}</span>
-            </p>
-            <!-- Afficher les infos pour l'équipe en retard si les scores diffèrent -->
-            <div class="actions">
-                <button @click="recordResult(StartingTeam.TeamA)">Équipe A</button>
-                <button @click="recordResult(StartingTeam.TeamB)">Équipe B</button>
-                <button @click="recordResult('draw')">Nul</button>
-            </div>
-        </div>
+    <!-- Affichage du match en cours -->
+    <div v-if="!matchOver && currentHoleIndex < 9">
+      <h2>Trou {{ currentHole }}</h2>
+      <p>
+        <strong>Prochaine équipe sur le Tee :</strong>
 
-        <!-- Match terminé -->
-        <div v-else>
-            <h2>Match terminé</h2>
-            <p>
-                Score final :
-                <br>{{ team1Name }} : {{ teamAScore }}
-                <br>{{ team2Name }} : {{ teamBScore }}
-            </p>
-            <p v-if="matchOver">
-                Vainqueur : {{ winnerDisplay }}
-            </p>
-        </div>
 
-        <!-- Tableau de progression -->
-        <div class="progression">
-            <h3>Progression du match</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Trou</th>
-                        <th v-for="hole in holes" :key="'hole-' + hole">{{ hole }}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Équipe A</td>
-                        <td v-for="(hole, index) in holes" :key="'teamA-' + hole" :class="{
-                            'win-cell': progression[index]?.holeResult === StartingTeam.TeamA,
-                            'draw-cell': progression[index]?.holeResult === 'draw',
-                            'skipped': matchOver && index+1 > currentHoleIndex
-                        }">
-                            {{ matchOver && index+1 > currentHoleIndex ? '❌' : progression[index]?.teamAScore }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Équipe B</td>
-                        <td v-for="(hole, index) in holes" :key="'teamB-' + hole" :class="{
-                            'win-cell': progression[index]?.holeResult === StartingTeam.TeamB,
-                            'draw-cell': progression[index]?.holeResult === 'draw',
-                            'skipped': matchOver && index+1 > currentHoleIndex
-                        }">
-                            {{ matchOver && index+1 > currentHoleIndex ? '❌' : progression[index]?.teamBScore }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
 
-        <!-- Bouton pour retourner à la configuration -->
-        <div class="return-config">
-            <button @click="goBackConfig">Retour configuration</button>
-        </div>
+      <ol>
+        <li v-if="!currentHoleIsEven && matchType === 'double'">Le match simple</li>
+        <li v-if="currentHoleIsEven && matchType === 'simple'">Le match double (paire sur les pair)</li>
+        <li><strong>{{ currentTeamAndPlayer }}</strong></li>
+        <li><strong>{{ otherTeamAndPlayer }}</strong></li>
+        <li v-if="currentHoleIsEven && matchType === 'double'">Le match simple</li>
+        <li v-if="!currentHoleIsEven && matchType === 'simple'">Le match double  (paire sur les pair)</li>
+      </ol>
+      </p>
+      <!-- Afficher les infos pour l'équipe en retard si les scores diffèrent -->
+      <h3>Qui a gagner le trou ?</h3>
+      <div class="actions">
+        <button @click="recordResult(StartingTeam.TeamA)">Équipe A</button>
+        <button @click="recordResult(StartingTeam.TeamB)">Équipe B</button>
+        <button @click="recordResult('draw')">Nul</button>
+      </div>
     </div>
+
+    <!-- Match terminé -->
+    <div v-else>
+      <h2>Match terminé</h2>
+      <p>
+        Score final :
+        <br>{{ team1Name }} : {{ teamAScore }}
+        <br>{{ team2Name }} : {{ teamBScore }}
+      </p>
+      <p v-if="matchOver">
+        Vainqueur : {{ winnerDisplay }}
+      </p>
+    </div>
+
+    <!-- Tableau de progression -->
+    <div class="progression">
+      <h3>Progression du match</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Trou</th>
+            <th v-for="hole in holes" :key="'hole-' + hole">{{ hole }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Équipe A</td>
+            <td v-for="(hole, index) in holes" :key="'teamA-' + hole" :class="{
+              'win-cell': progression[index]?.holeResult === StartingTeam.TeamA,
+              'draw-cell': progression[index]?.holeResult === 'draw',
+              'skipped': matchOver && index + 1 > currentHoleIndex
+            }">
+              {{ matchOver && index + 1 > currentHoleIndex ? '❌' : progression[index]?.teamAScore }}
+            </td>
+          </tr>
+          <tr>
+            <td>Équipe B</td>
+            <td v-for="(hole, index) in holes" :key="'teamB-' + hole" :class="{
+              'win-cell': progression[index]?.holeResult === StartingTeam.TeamB,
+              'draw-cell': progression[index]?.holeResult === 'draw',
+              'skipped': matchOver && index + 1 > currentHoleIndex
+            }">
+              {{ matchOver && index + 1 > currentHoleIndex ? '❌' : progression[index]?.teamBScore }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bouton pour retourner à la configuration -->
+    <div class="return-config">
+      <button @click="goBackConfig">Retour configuration</button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -92,8 +102,8 @@ const team2Name = ref(route.query.team2 || 'Team B')
 const initialStartingTeam = route.query.startingTeam as StartingTeam || StartingTeam.TeamA
 
 const matchType = route.query.matchType as string || 'simple'
-const team1StartingPlayer:number = parseInt(route.query.team1StartingPlayer) || 1
-const team2StartingPlayer:number = parseInt(route.query.team2StartingPlayer) || 1
+const team1StartingPlayer: number = parseInt(route.query.team1StartingPlayer) || 1
+const team2StartingPlayer: number = parseInt(route.query.team2StartingPlayer) || 1
 
 const holes = Array.from({ length: 9 }, (_, i) => ((startHoleParam - 1 + i) % 18) + 1)
 
@@ -147,6 +157,8 @@ const currentTeamAndPlayer = computed(() => {
   return currentStartingTeam.value === StartingTeam.TeamA ? 'Équipe A' : 'Équipe B'
 })
 
+const currentHoleIsEven = computed(() => currentHole.value % 2 === 0)
+
 const otherTeamAndPlayer = computed(() => {
   if (matchType === 'double') {
     if (currentStartingTeam.value === StartingTeam.TeamA) {
@@ -184,34 +196,34 @@ onMounted(() => {
 })
 
 function recordResult(result: string) {
-    // Mise à jour des scores et mise à jour de l'équipe de départ si une équipe gagne
-    if (result === StartingTeam.TeamA) {
-        teamAScore.value += 1
-        teamBScore.value -= 1
-        currentStartingTeam.value = StartingTeam.TeamA
-    } else if (result === StartingTeam.TeamB) {
-        teamBScore.value += 1
-        teamAScore.value -= 1
-        currentStartingTeam.value = StartingTeam.TeamB
-    }
-    // Pour un match nul, l'équipe de départ reste inchangée
+  // Mise à jour des scores et mise à jour de l'équipe de départ si une équipe gagne
+  if (result === StartingTeam.TeamA) {
+    teamAScore.value += 1
+    teamBScore.value -= 1
+    currentStartingTeam.value = StartingTeam.TeamA
+  } else if (result === StartingTeam.TeamB) {
+    teamBScore.value += 1
+    teamAScore.value -= 1
+    currentStartingTeam.value = StartingTeam.TeamB
+  }
+  // Pour un match nul, l'équipe de départ reste inchangée
 
-    // Sauvegarde des scores cumulés pour ce trou
-    progression.value.push({
-        holeResult: result,
-        teamAScore: teamAScore.value,
-        teamBScore: teamBScore.value,
-    })
-    
-    // Passage au trou suivant
-    currentHoleIndex.value++
-    
-    // Vérifier si un comeback est impossible
-    const remaining = 9 - currentHoleIndex.value
-    if (Math.abs(teamAScore.value - teamBScore.value) > (remaining * 2)) {
-        matchOver.value = true
-    }
-    saveState()
+  // Sauvegarde des scores cumulés pour ce trou
+  progression.value.push({
+    holeResult: result,
+    teamAScore: teamAScore.value,
+    teamBScore: teamBScore.value,
+  })
+
+  // Passage au trou suivant
+  currentHoleIndex.value++
+
+  // Vérifier si un comeback est impossible
+  const remaining = 9 - currentHoleIndex.value
+  if (Math.abs(teamAScore.value - teamBScore.value) > (remaining * 2)) {
+    matchOver.value = true
+  }
+  saveState()
 }
 
 function goBackConfig() {
@@ -224,32 +236,32 @@ function goBackConfig() {
 
 <style scoped>
 .match {
-    max-width: 600px;
-    margin: auto;
-    text-align: center;
-    font-family: sans-serif;
+  max-width: 600px;
+  margin: auto;
+  text-align: center;
+  font-family: sans-serif;
 }
 
 .actions button {
-    margin: 0.5rem;
-    padding: 0.5rem 1rem;
-    text-transform: capitalize;
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  text-transform: capitalize;
 }
 
 .progression {
-    margin-top: 2rem;
+  margin-top: 2rem;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 th,
 td {
-    border: 1px solid #ccc;
-    padding: 0.5rem;
-    text-align: center;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  text-align: center;
 }
 
 .skipped {
@@ -269,9 +281,16 @@ td {
 .return-config {
   margin-top: 1rem;
 }
+
 .return-config button {
   padding: 0.5rem 1rem;
   font-size: 1rem;
   cursor: pointer;
+}
+
+
+ol {
+  text-align: center;
+  list-style-position: inside;
 }
 </style>

@@ -63,7 +63,7 @@
 
     <div v-if="matchType === MatchType.Double" class="starting-players">
       <h3>
-        Joueur au départ des trous 
+        Joueur au départ des trous
         {{ isStartHoleEven ? 'impairs' : 'pairs' }} <small>({{ fourHoles.join(', ') }})</small>
       </h3>
       <div class="team-players">
@@ -86,8 +86,29 @@
 
     <br><br>
 
+    <br>
+
+    <quote v-if="matchType === MatchType.Double && startingTeam === StartingTeam.Random">
+      Attention, le tirage au sort ne fonctionne pas pour le Double.
+      Il faut :
+      <ol>
+        <li>Faire un tirage</li>
+        <li>L'équipe qui gagne a le choix entre</li>
+        <ul>
+          <li>Choisir l'équipe qui débute le match</li>
+          <li>Choisir connaitre quel joueur de l'autre pair va débuter</li>
+        </ul>
+        <li>L'autre équipe prend le choix restant</li>
+      </ol>
+
+    </quote>
+
+
+    
+
     <button @click="handleStart" :disabled="!startingTeam">
-      {{ startingTeam === StartingTeam.Random ? 'Sélectionner une équipe puis démarrer le match' : 'Démarrer le match' }}
+      {{ startingTeam === StartingTeam.Random ? 'Sélectionner une équipe puis démarrer le match' : 'Démarrer le match'
+      }}
     </button>
   </div>
 
@@ -132,7 +153,7 @@ const fiveHoles = computed(() => {
   return result
 })
 const fourHoles = computed(() => {
-  
+
   const result: number[] = []
   for (let i = 0; i < 4; i++) {
     result.push(((startHole.value + i * 2) % 18) + 1)
@@ -255,5 +276,18 @@ function startMatch() {
   width: 120px;
   border-radius: 4px;
   border: 1px solid #ccc;
+}
+
+
+quote {
+  display: block;
+  padding: 1rem;
+  margin-top: 2rem;
+  font-style: italic;
+
+  text-align: left;
+
+  border-left: 4px solid rgba(255, 255, 0, 0.432);
+
 }
 </style>
