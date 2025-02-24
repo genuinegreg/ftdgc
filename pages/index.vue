@@ -29,18 +29,20 @@
     <div class="match-type">
       <h2>Type de match</h2>
       <label>
-        <input type="radio" v-model="matchType" value="simple" checked /> Simple
+        <input type="radio" :value="MatchType.Simple" v-model="matchType" /> Simple
       </label>
       <label>
-        <input type="radio" v-model="matchType" value="double" /> Double
+        <input type="radio" :value="MatchType.Double" v-model="matchType" /> Double
       </label>
     </div>
 
     <br><br>
 
     <!-- Section de sélection des joueurs pour le double -->
-    <div v-if="matchType === 'double'" class="starting-players">
-      <h2>Joueurs au départ du trou {{ startHole }}</h2>
+    <div v-if="matchType === MatchType.Double" class="starting-players">
+      <h3>
+        Joueur au départ des trous {{ isStartHoleEven ? 'pair' : 'impair' }} <small>({{ fiveHoles.join(', ') }})</small>
+      </h3>
       <div class="team-players">
         <div>
           <h3>Équipe A</h3>
@@ -54,6 +56,29 @@
           <select v-model="team2StartingPlayer">
             <option value="1">Joueur 1</option>
             <option value="2">Joueur 2</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="matchType === MatchType.Double" class="starting-players">
+      <h3>
+        Joueur au départ des trous 
+        {{ isStartHoleEven ? 'impairs' : 'pairs' }} <small>({{ fourHoles.join(', ') }})</small>
+      </h3>
+      <div class="team-players">
+        <div>
+          <h3>Équipe A</h3>
+          <select v-model="team1StartingPlayer">
+            <option value="2">Joueur 1</option>
+            <option value="1">Joueur 2</option>
+          </select>
+        </div>
+        <div>
+          <h3>Équipe B</h3>
+          <select v-model="team2StartingPlayer">
+            <option value="2">Joueur 1</option>
+            <option value="1">Joueur 2</option>
           </select>
         </div>
       </div>
@@ -76,7 +101,7 @@
 
 <script setup lang="ts">
 
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 enum StartingTeam {
@@ -85,13 +110,28 @@ enum StartingTeam {
   Random = 'random'
 }
 
+enum MatchType {
+  Simple = 'simple',
+  Double = 'double'
+}
+
 const router = useRouter()
 const startHole = ref(1)
 const startingTeam = ref<StartingTeam>(StartingTeam.Random)
 const overlayVisible = ref(false)
-const matchType = ref('simple')
+const matchType = ref<MatchType>(MatchType.Double)
 const team1StartingPlayer = ref('1')
 const team2StartingPlayer = ref('1')
+
+const isStartHoleEven = computed(() => startHole.value % 2 === 0)
+const fiveHoles = computed(() => {
+
+  return [startHole.value, startHole.value + 2, startHole.value + 4, startHole.value + 6, startHole.value + 8]
+})
+const fourHoles = computed(() => {
+  
+  return [startHole.value + 1, startHole.value + 3, startHole.value + 5, startHole.value + 7]
+})
 
 function handleStart() {
   if (!startingTeam.value) {
