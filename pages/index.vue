@@ -125,12 +125,19 @@ const team2StartingPlayer = ref('1')
 
 const isStartHoleEven = computed(() => startHole.value % 2 === 0)
 const fiveHoles = computed(() => {
-
-  return [startHole.value, startHole.value + 2, startHole.value + 4, startHole.value + 6, startHole.value + 8]
+  const result: number[] = []
+  for (let i = 0; i < 5; i++) {
+    result.push(((startHole.value - 1 + i * 2) % 18) + 1)
+  }
+  return result
 })
 const fourHoles = computed(() => {
   
-  return [startHole.value + 1, startHole.value + 3, startHole.value + 5, startHole.value + 7]
+  const result: number[] = []
+  for (let i = 0; i < 4; i++) {
+    result.push(((startHole.value + i * 2) % 18) + 1)
+  }
+  return result
 })
 
 function handleStart() {
