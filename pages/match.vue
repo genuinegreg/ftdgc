@@ -1,48 +1,51 @@
 <template>
-  <div class="match">
-    <h1>Match de Disc Golf</h1>
+  <div class="match container">
+    <hgroup>
+      <h1>Match de Disc Golf</h1>
+      <p>Trou {{ currentHole }}</p>
+    </hgroup>
 
-    <!-- Affichage du match en cours -->
-    <div v-if="!matchOver && currentHoleIndex < 9">
-      <h2>Trou {{ currentHole }}</h2>
-      
-        <h2>Prochaine équipe sur le Tee :</h2>
+    <section v-if="!matchOver && currentHoleIndex < 9">
+      <!-- Affichage du match en cours -->
+      <article>
 
+        <header>Trou {{ currentHole }}, ordre de jeux :</header>
 
-      <ol>
-        <li v-if="!currentHoleIsEven && matchType === 'double'">Le match simple</li>
-        <li v-if="currentHoleIsEven && matchType === 'simple'">Le match double (paire sur les pairs)</li>
-        <li><strong>{{ currentTeamAndPlayer }}</strong></li>
-        <li><strong>{{ otherTeamAndPlayer }}</strong></li>
-        <li v-if="currentHoleIsEven && matchType === 'double'">Le match simple</li>
-        <li v-if="!currentHoleIsEven && matchType === 'simple'">Le match double  (paire sur les pairs)</li>
-      </ol>
-      
-      <!-- Afficher les infos pour l'équipe en retard si les scores diffèrent -->
-      <h3>Qui a gagné le trou ?</h3>
-      <div class="actions">
-        <button @click="recordResult(StartingTeam.TeamA)">Équipe A</button>
-        <button @click="recordResult(StartingTeam.TeamB)">Équipe B</button>
-        <button @click="recordResult('draw')">Nul</button>
-      </div>
-    </div>
+        <ol>
+          <li v-if="!currentHoleIsEven && matchType === 'double'">Le match simple</li>
+          <li v-if="currentHoleIsEven && matchType === 'simple'">Le match double (paire sur les pairs)</li>
+          <li><strong>{{ currentTeamAndPlayer }}</strong></li>
+          <li><strong>{{ otherTeamAndPlayer }}</strong></li>
+          <li v-if="currentHoleIsEven && matchType === 'double'">Le match simple</li>
+          <li v-if="!currentHoleIsEven && matchType === 'simple'">Le match double (paire sur les pairs)</li>
+        </ol>
+        <footer>
+          <h6>Qui a gagné le trou ?</h6>
+        <div class="actions" role="group">
+          <button @click="recordResult(StartingTeam.TeamA)">Équipe A</button>
+          <button @click="recordResult(StartingTeam.TeamB)">Équipe B</button>
+          <button @click="recordResult('draw')">Nul</button>
+        </div>
+        </footer>
+      </article>
+    </section>
 
     <!-- Match terminé -->
-    <div v-else>
-      <h2>Match terminé</h2>
+    <article v-else>
+      <header>Match terminé</header>
       <p>
-        Score final :
+        <strong>Score final : </strong>
         <br>{{ team1Name }} : {{ teamAScore }}
         <br>{{ team2Name }} : {{ teamBScore }}
       </p>
       <h2 class="Vainqueur" v-if="matchOver || currentHoleIndex === 9">
         Vainqueur : {{ winnerDisplay }}
       </h2>
-    </div>
+    </article>
 
     <!-- Tableau de progression -->
-    <div class="progression">
-      <h3>Progression du match</h3>
+    <article class="progression">
+      <header>Progression du match</header>
       <table>
         <thead>
           <tr>
@@ -73,7 +76,7 @@
           </tr>
         </tbody>
       </table>
-    </div>
+    </article>
 
     <!-- Bouton pour retourner à la configuration -->
     <div class="return-config">
@@ -234,40 +237,6 @@ function goBackConfig() {
 </script>
 
 <style scoped>
-.match {
-  max-width: 600px;
-  margin: auto;
-  text-align: center;
-  font-family: sans-serif;
-}
-
-.actions button {
-  margin: 0.5rem;
-  padding: 0.5rem 1rem;
-  text-transform: capitalize;
-}
-
-.progression {
-  margin-top: 2rem;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  border: 1px solid #ccc;
-  padding: 0.5rem;
-  text-align: center;
-}
-
-.skipped {
-  background-color: red;
-  color: white;
-  font-weight: bold;
-}
 
 .win-cell {
   background-color: hwb(120 85% 0%);
@@ -277,26 +246,11 @@ td {
   background-color: hwb(64 85% 0%);
 }
 
-.return-config {
-  margin-top: 1rem;
+.skipped {
+  background-color: hwb(0 85% 0%);
 }
 
-.return-config button {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-
-ol {
+td, th {
   text-align: center;
-  list-style-position: inside;
-}
-
-
-.Vainqueur {
-  color: blue;
-  font-size: 1.5rem;
-  font-weight: bold;
 }
 </style>
